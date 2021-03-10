@@ -5,9 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle/API.dart';
 import 'package:toggle/constants.dart';
+import 'package:toggle/form.dart';
 import 'package:toggle/screen.dart';
 import 'package:toggle/time_entries.dart';
 
@@ -19,6 +21,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   String email, name, image;
   List<Time_Entries> _time_entries;
+  List<Time_Entries> _custom_entries;
+  DateTime date = DateTime.now();
 
   @override
   void initState() {
@@ -30,81 +34,149 @@ class _HomeState extends State<Home> {
       });
     });
     get_time_entries();
+    get_time_custom(
+        DateFormat("yyyy-MM-dd'T'00:00:00'Z'")
+            .format(DateTime.now().subtract(Duration(days: 30))),
+        DateFormat("yyyy-MM-dd'T'00:00:00'Z'").format(DateTime.now()));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('toggel'),
-        centerTitle: true,
-      ),
-      drawer: Drawer(
-        child: SingleChildScrollView(
-          child: Container(
-              width: ScreenUtil.getWidth(context) / 2,
-              height: ScreenUtil.getHeight(context),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: ScreenUtil.getHeight(context) / 10,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CachedNetworkImage(
-                        width: ScreenUtil.getWidth(context) / 5,
-                        height: ScreenUtil.getHeight(context) / 20,
-                        imageUrl: "$image",
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('toggel'),
+          centerTitle: true,
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                text: 'Today',
+              ),
+              Tab(text: 'last month'),
+            ],
+          ),
+        ),
+        drawer: Drawer(
+          child: SingleChildScrollView(
+            child: Container(
+                width: ScreenUtil.getWidth(context) / 2,
+                height: ScreenUtil.getHeight(context),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: ScreenUtil.getHeight(context) / 10,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CachedNetworkImage(
+                          width: ScreenUtil.getWidth(context) / 5,
+                          height: ScreenUtil.getHeight(context) / 20,
+                          imageUrl: "$image",
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "$name",
+                              maxLines: 1,
+                            ),
+                            Text(
+                              "$email",
+                              maxLines: 1,
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => FormOverlay(),
+            );
+          },
+          child: Icon(Icons.play_arrow),
+          backgroundColor: kPrimaryColor,
+        ),
+        body: TabBarView(
+          children: [
+            Container(
+              width: ScreenUtil.getWidth(context),
+              child: _time_entries == null
+                  ? Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      child: Column(
                         children: [
-                          Text(
-                            "$name",
-                            maxLines: 1,
-                          ),
-                          Text(
-                            "$email",
-                            maxLines: 1,
-                            style: TextStyle(color: Colors.grey),
+                          ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: _time_entries.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return time_entries(_time_entries[index]);
+                            },
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ],
-              )),
+                    ),
+            ),
+            Container(
+              width: ScreenUtil.getWidth(context),
+              child: _custom_entries == null
+                  ? Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: _custom_entries.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return time_entries(_custom_entries[index]);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-        },
-        child: Icon(Icons.play_arrow),
-        backgroundColor: kPrimaryColor,
-      ),
-      body: Container(
-        width: ScreenUtil.getWidth(context),
-        child: _time_entries == null
-            ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemCount: _time_entries.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return time_entries(_time_entries[index]);
-                },
-              ),
       ),
     );
   }
 
   void get_time_entries() {
-    API(context).get("time_entries").then((value) {
+    API(context)
+        .get(
+            "time_entries?start_date=${DateFormat("yyyy-MM-dd'T'00:00:00'Z'").format(DateTime.now())}")
+        .then((value) {
       _time_entries = [];
       jsonDecode(value.body).forEach((v) {
         setState(() {
           _time_entries.add(Time_Entries.fromJson(v));
+        });
+      });
+    });
+  }
+
+  void get_time_custom(String start, String end) {
+    API(context)
+        .get("time_entries?start_date=$start&end_date=$end")
+        .then((value) {
+      _custom_entries = [];
+      jsonDecode(value.body).forEach((v) {
+        setState(() {
+          _custom_entries.add(Time_Entries.fromJson(v));
         });
       });
     });
@@ -134,7 +206,7 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AutoSizeText(
-                        '${approved.description??'Add description'}',
+                        '${approved.description ?? 'Add description'}',
                         minFontSize: 10,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

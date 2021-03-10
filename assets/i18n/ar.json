@@ -21,7 +21,12 @@
     }
   },
   "language": "اللغة",
-
+  "title": "title",
+  "start ": "Gust",
+  "end ": "Gust",
+  "duration ": "Gust",
+  "client": "Gust",
+  "project": "Gust",
   "gust": "عزيزى الزائر",
   "good_morning": "صباح الخير",
   "good_night": "مساء الخير",

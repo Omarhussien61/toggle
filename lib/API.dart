@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:global_configuration/global_configuration.dart';
@@ -8,20 +9,20 @@ import 'package:toggle/Maintenance.dart';
 import 'package:toggle/login/login_form_model.dart';
 import 'package:toggle/navigator.dart';
 
-
 class API {
-
   BuildContext context;
 
-  API(this.context) ;
+  API(this.context);
 
-  get(String url,{Model model}) async {
+  get(String url, {Model model}) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final String full_url =
         '${GlobalConfiguration().getString('api_base_url')}$url';
-    String basicAuth =
-        'Basic ' + base64Encode(utf8.encode('${model==null?prefs.getString('user_email'):model.email}:${model==null?prefs.getString('password'):model.password}'));
+    print(full_url);
+    String basicAuth = 'Basic ' +
+        base64Encode(utf8.encode(
+            '${model == null ? prefs.getString('user_email') : model.email}:${model == null ? prefs.getString('password') : model.password}'));
     try {
       http.Response response = await http.get(full_url, headers: {
         'Authorization': '$basicAuth',
