@@ -9,7 +9,10 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle/API.dart';
 import 'package:toggle/constants.dart';
+import 'package:toggle/details.dart';
 import 'package:toggle/form.dart';
+import 'package:toggle/login_page.dart';
+import 'package:toggle/navigator.dart';
 import 'package:toggle/screen.dart';
 import 'package:toggle/time_entries.dart';
 
@@ -64,6 +67,7 @@ class _HomeState extends State<Home> {
                 width: ScreenUtil.getWidth(context) / 2,
                 height: ScreenUtil.getHeight(context),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       height: ScreenUtil.getHeight(context) / 10,
@@ -92,6 +96,25 @@ class _HomeState extends State<Home> {
                         ),
                       ],
                     ),
+                    SizedBox(
+                      height: ScreenUtil.getHeight(context) / 20,
+                    ),
+                    ListTile(title: Text(
+                      "Home",
+                      style: TextStyle(
+                          color: kPrimaryColor, fontSize: 16),
+                    ),) ,
+                    ListTile(onTap: (){
+                      SharedPreferences.getInstance().then((value){
+                        value.clear();
+                        Nav.routeReplacement(context, LoginPage());
+                      });
+                    },
+                      title: Text(
+                      "Logout",
+                      style: TextStyle(
+                          color: Colors.grey, fontSize: 16),
+                    ),)
                   ],
                 )),
           ),
@@ -115,13 +138,16 @@ class _HomeState extends State<Home> {
                   : SingleChildScrollView(
                       child: Column(
                         children: [
-                          ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: _time_entries.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return time_entries(_time_entries[index]);
-                            },
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: _time_entries.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return time_entries(_time_entries[index]);
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -231,94 +257,63 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-                expanded: Container(
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: AutoSizeText(
-                          "${approved.start}",
-                          minFontSize: 10,
-                          maxLines: 1,
-                          style: TextStyle(
-                              color: Colors.grey, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: AutoSizeText(
-                              "${approved.stop}",
+                expanded: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            AutoSizeText(
+                              "start: ${approved.start}",
+                              minFontSize: 10,
+                              maxLines: 1,
+                              style: TextStyle(
+                                  color: Colors.grey, fontWeight: FontWeight.w500),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            AutoSizeText(
+                              "stop : ${approved.stop}",
                               minFontSize: 10,
                               maxLines: 1,
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.w500),
                             ),
-                          ),
-                          Expanded(
-                            child: SizedBox(),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          InkWell(
-                            onTap: () async {
-                              // API(context).post(Api_Configuration.increase_update,{
-                              //   "request_increase_id": approved.id.toString(),
-                              //   "status": 'approved'
-                              // }).then((value){
-                              //   if(value!=null){
-                              //     setState(() {
-                              //       showDialog(
-                              //         context: context,
-                              //         builder: (_) => RusultOverlay(
-                              //           value['message'],
-                              //           Icons.check_circle_outline,
-                              //           Colors.green,
-                              //         ),
-                              //       );
-                              //       getAppointments(
-                              //           DateFormat('yyyy-MM-dd').format(date));                                  });
-                              //   }
-                              // });
-                            },
-                            child: Container(
-                              width: ScreenUtil.getWidth(context) / 6,
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(6)),
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(bottom: 4, top: 4),
-                                child: Center(
-                                  child: AutoSizeText(
-                                    'قبول',
-                                    minFontSize: 8,
-                                    maxFontSize: 12,
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
+                            SizedBox(
+                              height: 10,
                             ),
+                          ],
+                        ),
+                        FlatButton(
+                          height: 50,
+                          shape: new RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(10.0)),
+                          color: kPrimaryColor,
+                          onPressed: () {
+                            Nav.route(
+                                context,
+                                Details(
+                                  time_Entries: approved,
+                                )
+                            );
+                          },
+                          minWidth: ScreenUtil.getWidth(context) / 10,
+                          child: AutoSizeText(
+                            'Details',
+                            minFontSize: 8,
+                            maxLines: 1,
+                            //overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
+                        ),                    ],
+                    ),
                   ),
                 ),
               ),

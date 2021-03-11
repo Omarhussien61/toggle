@@ -2,12 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle/API.dart';
 import 'package:toggle/LanguageTranslated.dart';
 import 'package:toggle/clints.dart';
 import 'package:toggle/constants.dart';
 import 'package:toggle/custom_textfield.dart';
 import 'package:toggle/drop_down_menu/find_dropdown.dart';
+import 'package:toggle/project.dart';
 import 'package:toggle/screen.dart';
 
 class FormOverlay extends StatefulWidget {
@@ -24,10 +27,14 @@ class FormOverlayState extends State<FormOverlay>
   Animation<double> scaleAnimation;
   final _formKey = GlobalKey<FormState>();
   List<Client> client;
+  List<Project> project;
+  DateTime selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     getCity();
+    getProject();
     controller =
         AnimationController(vsync: this, duration: Duration(milliseconds: 450));
     scaleAnimation =
@@ -64,9 +71,9 @@ class FormOverlayState extends State<FormOverlay>
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       MyTextFormField(
+
                         // intialLabel: 'sherifeldoksh8@gmail.com',
                         Keyboard_Type: TextInputType.emailAddress,
-                        textDirection: TextDirection.ltr,
                         labelText: getTransrlate(context, 'title'),
                         hintText: getTransrlate(context, 'title'),
                         isPhone: true,
@@ -83,38 +90,99 @@ class FormOverlayState extends State<FormOverlay>
                           // model.email=value;
                         },
                       ),
-                      MyTextFormField(
-                        // intialLabel: 'sherifeldoksh8@gmail.com',
-                        Keyboard_Type: TextInputType.emailAddress,
-                        textDirection: TextDirection.ltr,
-                        labelText: getTransrlate(context, 'start '),
-                        hintText: getTransrlate(context, 'start'),
-                        isPhone: true,
-                        validator: (String value) {
-                          if (value.isEmpty) {
-                            return getTransrlate(context, 'start');
-                          } else if (value.length < 9) {
-                            return getTransrlate(context, 'start');
-                          }
-                          _formKey.currentState.save();
-                          return null;
-                        },
-                        onSaved: (String value) {
-                          // model.email=value;
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: ScreenUtil.getWidth(context)/2.5,
+                            child: MyTextFormField(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  Icons.date_range,
+                                  color: kPrimaryColor,
+                                ),
+                                onPressed: (){
+                                  DatePicker.showDateTimePicker(context,
+                                      showTitleActions: false,
+                                      minTime: selectedDate, onChanged: (date) {
+                                        //   fromcontroler.text = DateFormat.yMd('ar').add_jm().format(date);
+                                        //from = DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
+                                      }, locale: LocaleType.ar);
+                                },
+                              ),
+                              enabled: false,
+                              // intialLabel: 'sherifeldoksh8@gmail.com',
+                              Keyboard_Type: TextInputType.emailAddress,
+                              labelText: getTransrlate(context, 'start '),
+                              hintText: getTransrlate(context, 'start'),
+                              isPhone: true,
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return getTransrlate(context, 'start');
+                                } else if (value.length < 9) {
+                                  return getTransrlate(context, 'start');
+                                }
+                                _formKey.currentState.save();
+                                return null;
+                              },
+
+                              onSaved: (String value) {
+                                // model.email=value;
+                              },
+                            ),
+                          ),
+                          Container(
+                            width: ScreenUtil.getWidth(context)/2.5,
+
+                            child: MyTextFormField(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  Icons.date_range,
+                                  color: kPrimaryColor,
+                                ),
+                                onPressed: (){
+                                  DatePicker.showDateTimePicker(context,
+                                      showTitleActions: false,
+                                      minTime: selectedDate, onChanged: (date) {
+                                        //   fromcontroler.text = DateFormat.yMd('ar').add_jm().format(date);
+                                        //from = DateFormat('yyyy-MM-dd HH:mm:ss').format(date);
+                                      }, locale: LocaleType.ar);
+                                },
+                              ),
+
+                              // intialLabel: 'sherifeldoksh8@gmail.com',
+                              Keyboard_Type: TextInputType.emailAddress,
+                              labelText: getTransrlate(context, 'end '),
+                              hintText: getTransrlate(context, 'end'),
+                              enabled: false,
+                              isPhone: true,
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return getTransrlate(context, 'end');
+                                } else if (value.length < 9) {
+                                  return getTransrlate(context, 'end');
+                                }
+                                _formKey.currentState.save();
+                                return null;
+                              },
+                              onSaved: (String value) {
+                                // model.email=value;
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       MyTextFormField(
                         // intialLabel: 'sherifeldoksh8@gmail.com',
                         Keyboard_Type: TextInputType.emailAddress,
-                        textDirection: TextDirection.ltr,
-                        labelText: getTransrlate(context, 'client'),
-                        hintText: getTransrlate(context, 'client'),
+                        labelText: getTransrlate(context, 'duration '),
+                        hintText: getTransrlate(context, 'duration'),
                         isPhone: true,
                         validator: (String value) {
                           if (value.isEmpty) {
-                            return getTransrlate(context, 'client');
+                            return getTransrlate(context, 'duration');
                           } else if (value.length < 9) {
-                            return getTransrlate(context, 'client');
+                            return getTransrlate(context, 'duration');
                           }
                           _formKey.currentState.save();
                           return null;
@@ -125,35 +193,41 @@ class FormOverlayState extends State<FormOverlay>
                       ),
                       Container(
                         margin: EdgeInsets.only(top: 10),
-                        child: FindDropdown<Client>(
-                            items: client,
-                            dropdownBuilder: (context, selectedText) => Align(
-                                alignment: Alignment.topRight,
-                                child: Container(
-                                    height: 50,
-                                    width: ScreenUtil.getWidth(context) / 1.1,
-                                    decoration: BoxDecoration(
-                                        color: Color(0xfff3f3f4),
-                                        borderRadius: BorderRadius.circular(3),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(.2),
-                                            blurRadius: 1.0,
-                                            // soften the shadow
-                                            spreadRadius: 0.0,
-                                            //extend the shadow
-                                            offset: Offset(
-                                              0.0,
-                                              // Move to right 10  horizontally
-                                              1.0, // Move to bottom 10 Vertically
-                                            ),
-                                          )
-                                        ]),
-                                    child: Center(
-                                        child: Text(selectedText == null
-                                            ? ' '
-                                            : selectedText.name)))),
-                            dropdownItemBuilder: (context, item, isSelected) =>
+                        child: FindDropdown<Project>(
+                            items: project,
+                            dropdownBuilder: (context, selectedText) =>
+                                Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                        height: 50,
+                                        width:
+                                        ScreenUtil.getWidth(context) /
+                                            1.1,
+                                        decoration: BoxDecoration(
+                                            color: Color(0xfff3f3f4),
+                                            borderRadius:
+                                            BorderRadius.circular(3),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(.2),
+                                                blurRadius: 1.0,
+                                                // soften the shadow
+                                                spreadRadius: 0.0,
+                                                //extend the shadow
+                                                offset: Offset(
+                                                  0.0,
+                                                  // Move to right 10  horizontally
+                                                  1.0, // Move to bottom 10 Vertically
+                                                ),
+                                              )
+                                            ]),
+                                        child: Center(
+                                            child: Text(selectedText == null
+                                                ? ' '
+                                                : "${selectedText.name}")))),
+                            dropdownItemBuilder:
+                                (context, item, isSelected) =>
                                 Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Text(
@@ -168,16 +242,92 @@ class FormOverlayState extends State<FormOverlay>
                                             : FontWeight.w600),
                                   ),
                                 ),
-                            onChanged: (item) {
+                            onChanged: (Project item) {
                               setState(() {
-                                //citycontroler.text = item.id.toString();
+                                // _cityController.text=item.id.toString();
                               });
                             },
-                            labelStyle: TextStyle(fontSize: 20),
-                            titleStyle: TextStyle(fontSize: 20),
-                            label: getTransrlate(context, 'client'),
-                            showSearchBox: true,
-                            isUnderLine: false),
+                            validate: (Project value) {
+                              if (value.id
+                                  .toString()
+                                  .isEmpty) {
+                                return getTransrlate(context, 'City');
+                              }
+                            },
+                            selectedItem: new Project(
+                                name: getTransrlate(context, 'project')),
+                            isUnderLine: true
+                        ),
+
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 10),
+                        child: FindDropdown<Client>(
+                            items: client,
+                            dropdownBuilder: (context, selectedText) =>
+                                Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                        height: 50,
+                                        width:
+                                        ScreenUtil.getWidth(context) /
+                                            1.1,
+                                        decoration: BoxDecoration(
+                                            color: Color(0xfff3f3f4),
+                                            borderRadius:
+                                            BorderRadius.circular(3),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withOpacity(.2),
+                                                blurRadius: 1.0,
+                                                // soften the shadow
+                                                spreadRadius: 0.0,
+                                                //extend the shadow
+                                                offset: Offset(
+                                                  0.0,
+                                                  // Move to right 10  horizontally
+                                                  1.0, // Move to bottom 10 Vertically
+                                                ),
+                                              )
+                                            ]),
+                                        child: Center(
+                                            child: Text(selectedText == null
+                                                ? ' '
+                                                : selectedText.name)))),
+                            dropdownItemBuilder:
+                                (context, item, isSelected) =>
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    item.name,
+                                    style: TextStyle(
+                                        color: isSelected
+                                            ? kPrimaryColor
+                                            : Color(0xFF5D6A78),
+                                        fontSize: isSelected ? 20 : 17,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w600),
+                                  ),
+                                ),
+                            onChanged: (Client item) {
+                              setState(() {
+                                // _cityController.text=item.id.toString();
+                              });
+                            },
+                            validate: (Client value) {
+                              if (value.id
+                                  .toString()
+                                  .isEmpty) {
+                                return getTransrlate(context, 'City');
+                              }
+                            },
+                            selectedItem: new Client(
+                                name: getTransrlate(context, 'client')),
+                            isUnderLine: true
+                        ),
+
                       ),
                       FlatButton(onPressed: () {}, child: Text('OK'))
                     ],
@@ -200,5 +350,18 @@ class FormOverlayState extends State<FormOverlay>
         });
       });
     });
+  }
+  getProject() {
+    SharedPreferences.getInstance().then((value){
+      API(context).get('workspaces/${value.getInt('w_id')}/projects').then((value) {
+        project = [];
+        jsonDecode(value.body).forEach((v) {
+          setState(() {
+            project.add(Project.fromJson(v));
+          });
+        });
+      });
+    });
+
   }
 }

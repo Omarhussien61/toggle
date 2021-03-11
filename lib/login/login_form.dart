@@ -116,6 +116,7 @@ class _LoginFormState extends State<LoginForm> {
                           prefs.setString("name", user.fullname);
                           prefs.setString("token", user.apiToken);
                           prefs.setInt("user_id",  user.id);
+                          prefs.setInt("w_id",  user.defaultWid);
                           prefs.setString("imageUrl",  user.imageUrl);
                           showDialog(
                             context: context,

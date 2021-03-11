@@ -46,15 +46,15 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Padding(
                   padding: const EdgeInsets.all(35),
                   child: CachedNetworkImage(
-                    imageUrl: 'https://demo.7lcart.com/images/7lcart.png',
+                    imageUrl: 'https://cdn.logo.com/hotlink-ok/logo-social-sq.png',
                   ),
                 ),
               ),
-              Text(
-                '7l Cart App Powered By 7lSoft',
-                style: TextStyle(
-                    fontWeight: FontWeight.w800, color: kPrimaryColor),
-              )
+              // Text(
+              //   'Logo App Powered By 7lSoft',
+              //   style: TextStyle(
+              //       fontWeight: FontWeight.w800, color: kPrimaryColor),
+              // )
             ],
           ),
         ),

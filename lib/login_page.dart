@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   height: 100,
                   width: ScreenUtil.getWidth(context) / 2,
-                  child:CachedNetworkImage(imageUrl: 'https://demo.7lcart.com/images/7lcart.png',),
+                  child:CachedNetworkImage(imageUrl: 'https://cdn.logo.com/hotlink-ok/logo-social-sq.png',),
                 ),
                 LoginForm(),
 

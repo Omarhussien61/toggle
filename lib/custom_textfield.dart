@@ -50,7 +50,6 @@ class MyTextFormField extends StatelessWidget {
             ),
           ),
           fillColor: Color(0xFFEEEEF3),
-
           labelText: labelText,
           filled: true,
           suffixIcon: this.suffixIcon,
